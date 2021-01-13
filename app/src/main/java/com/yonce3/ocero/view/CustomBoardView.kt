@@ -2,20 +2,18 @@ package com.yonce3.ocero.view
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.View
-import com.yonce3.ocero.R
 
 class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attrs) {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        val strokeWidth = 10f
-
         val paint = Paint().apply {
-            this.strokeWidth = strokeWidth
+            this.strokeWidth = 10F
             this.style = Paint.Style.STROKE
         }
 
@@ -30,6 +28,49 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
             canvas?.drawLine(w, 0F, w, width.toFloat(), paint)
             w += width / 8
         }
+
+        var radius = (width / 8 / 2).toFloat()
+        for (i in 0..3) {
+            when (i) {
+                0 -> {
+                    val paintA = Paint().apply {
+                        this.color = Color.BLACK
+                        this.style = Paint.Style.FILL
+                    }
+                    paintA.color = Color.BLACK
+                    var centerX = (width / 2 - radius).toFloat()
+                    var centerY = (width / 2 + radius)
+                    canvas?.drawCircle(centerX, centerY, radius, paintA)
+                }
+                1 -> {
+                    val paintB = Paint().apply {
+                        this.color = Color.BLACK
+                        this.style = Paint.Style.FILL
+                    }
+                    var centerX = (width / 2 + radius).toFloat()
+                    var centerY = (width / 2 - radius)
+                    canvas?.drawCircle(centerX, centerY, radius, paintB)
+                }
+                2 -> {
+                    val paintC = Paint().apply {
+                        this.color = Color.WHITE
+                        this.style = Paint.Style.FILL
+                    }
+                    var centerX = (width / 2 + radius).toFloat()
+                    var centerY = (width / 2 + radius)
+                    canvas?.drawCircle(centerX, centerY, radius, paintC)
+                }
+                3 -> {
+                    val paintD = Paint().apply {
+                        this.color = Color.WHITE
+                        this.style = Paint.Style.FILL
+                    }
+                    var centerX = (width / 2 - radius).toFloat()
+                    var centerY = (width / 2 - radius)
+                    canvas?.drawCircle(centerX, centerY, radius, paintD)
+                }
+            }
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -38,5 +79,22 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         return super.onKeyDown(keyCode, event)
+    }
+
+    private fun drawCell(i: Int) {
+        when (i) {
+            0 -> {
+
+            }
+            1 -> {
+
+            }
+            2 -> {
+
+            }
+            3 -> {
+
+            }
+        }
     }
 }
