@@ -6,9 +6,13 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
+import com.yonce3.ocero.Cell
 
 class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attrs) {
+
+    private var CellList = arrayListOf<Cell>()
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
@@ -78,7 +82,13 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+
         return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+
+        return super.onTouchEvent(event)
     }
 
     private fun drawCell(i: Int) {
