@@ -14,6 +14,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     private var cellList = arrayListOf<Cell>()
     private var paintBlack: Paint
     private var paintWhite: Paint
+    private var strokePaint: Paint
 
     init {
         // 黒の石のペイント
@@ -26,6 +27,11 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         paintWhite = Paint().apply {
             this.color = Color.WHITE
             this.style = Paint.Style.FILL
+        }
+
+        strokePaint = Paint().apply {
+            this.strokeWidth = 10F
+            this.style = Paint.Style.STROKE
         }
     }
 
@@ -64,17 +70,12 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        val paint = Paint().apply {
-            this.strokeWidth = 10F
-            this.style = Paint.Style.STROKE
-        }
-
         var h = 0F
         var w = 0F
         for (i in 0..8) {
-            canvas?.drawLine(0F, h, width.toFloat(), h, paint)
+            canvas?.drawLine(0F, h, width.toFloat(), h, strokePaint)
             h += width / 8
-            canvas?.drawLine(w, 0F, w, width.toFloat(), paint)
+            canvas?.drawLine(w, 0F, w, width.toFloat(), strokePaint)
             w += width / 8
         }
 
