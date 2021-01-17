@@ -11,8 +11,56 @@ import android.view.View
 import com.yonce3.ocero.Cell
 
 class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attrs) {
+    private var cellList = arrayListOf<Cell>()
+    private var paintBlack: Paint
+    private var paintWhite: Paint
 
-    private var CellList = arrayListOf<Cell>()
+    init {
+        // 黒の石のペイント
+        paintBlack = Paint().apply {
+            this.color = Color.BLACK
+            this.style = Paint.Style.FILL
+        }
+
+        // 白の石のペイント
+        paintWhite = Paint().apply {
+            this.color = Color.WHITE
+            this.style = Paint.Style.FILL
+        }
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        // マスのオブジェクトを作成
+        val cellWidth = (width / 8).toFloat()
+        var w1 = 0F
+        var h1 = 0F
+        var w2 = cellWidth
+        var h2 = cellWidth
+
+        for(x in 1..8) {
+            for (y in 1..8) {
+                cellList.add(Cell(x, y, w1, h1, w2, h2, (w1 + w2)/2, (h1 + h2)/2, false))
+                h1 += cellWidth
+                h2 += cellWidth
+            }
+            h1 = 0F
+            h2 = cellWidth
+            w1 += cellWidth
+            w2 += cellWidth
+        }
+
+        // 初期石を作成
+        cellList.filter { it.x == 4 && it.y == 4 || it.x == 5 && it.y == 5}.map {
+            it.isSet = true
+            it.color = com.yonce3.ocero.Color.WHITE
+        }
+        cellList.filter { it.x == 4 && it.y == 5 || it.x == 5 && it.y == 4 }.map {
+            it.isSet = true
+            it.color = com.yonce3.ocero.Color.BLACK
+        }
+        super.onSizeChanged(w, h, oldw, oldh)
+    }
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
@@ -22,56 +70,25 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         }
 
         var h = 0F
+        var w = 0F
         for (i in 0..8) {
             canvas?.drawLine(0F, h, width.toFloat(), h, paint)
             h += width / 8
-        }
-
-        var w = 0F
-        for (i in 0..8) {
             canvas?.drawLine(w, 0F, w, width.toFloat(), paint)
             w += width / 8
         }
 
         var radius = (width / 8 / 2).toFloat()
-        for (i in 0..3) {
-            when (i) {
-                0 -> {
-                    val paintA = Paint().apply {
-                        this.color = Color.BLACK
-                        this.style = Paint.Style.FILL
+        // 石を描画
+        cellList.map {
+            if (it.isSet) {
+                when (it.color) {
+                    com.yonce3.ocero.Color.BLACK -> {
+                        canvas?.drawCircle(it.centerX!!, it.centerY!!, radius, paintBlack)
                     }
-                    paintA.color = Color.BLACK
-                    var centerX = (width / 2 - radius).toFloat()
-                    var centerY = (width / 2 + radius)
-                    canvas?.drawCircle(centerX, centerY, radius, paintA)
-                }
-                1 -> {
-                    val paintB = Paint().apply {
-                        this.color = Color.BLACK
-                        this.style = Paint.Style.FILL
+                    com.yonce3.ocero.Color.WHITE -> {
+                        canvas?.drawCircle(it.centerX!!, it.centerY!!, radius, paintWhite)
                     }
-                    var centerX = (width / 2 + radius).toFloat()
-                    var centerY = (width / 2 - radius)
-                    canvas?.drawCircle(centerX, centerY, radius, paintB)
-                }
-                2 -> {
-                    val paintC = Paint().apply {
-                        this.color = Color.WHITE
-                        this.style = Paint.Style.FILL
-                    }
-                    var centerX = (width / 2 + radius).toFloat()
-                    var centerY = (width / 2 + radius)
-                    canvas?.drawCircle(centerX, centerY, radius, paintC)
-                }
-                3 -> {
-                    val paintD = Paint().apply {
-                        this.color = Color.WHITE
-                        this.style = Paint.Style.FILL
-                    }
-                    var centerX = (width / 2 - radius).toFloat()
-                    var centerY = (width / 2 - radius)
-                    canvas?.drawCircle(centerX, centerY, radius, paintD)
                 }
             }
         }
@@ -87,24 +104,8 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-
+        // TODO: タップした位置のマスを判定して、石を追加する
+        invalidate()
         return super.onTouchEvent(event)
-    }
-
-    private fun drawCell(i: Int) {
-        when (i) {
-            0 -> {
-
-            }
-            1 -> {
-
-            }
-            2 -> {
-
-            }
-            3 -> {
-
-            }
-        }
     }
 }
