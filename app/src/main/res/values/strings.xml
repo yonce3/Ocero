@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Ocero</string>
+    <string name="reset_button_text">リセット</string>
 </resources>

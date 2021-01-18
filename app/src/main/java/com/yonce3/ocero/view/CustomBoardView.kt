@@ -15,6 +15,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     private var paintBlack: Paint
     private var paintWhite: Paint
     private var strokePaint: Paint
+    private var switch: Boolean = true
 
     init {
         // 黒の石のペイント
@@ -67,15 +68,15 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
         var h = 0F
         var w = 0F
         for (i in 0..8) {
-            canvas?.drawLine(0F, h, width.toFloat(), h, strokePaint)
+            canvas.drawLine(0F, h, width.toFloat(), h, strokePaint)
             h += width / 8
-            canvas?.drawLine(w, 0F, w, width.toFloat(), strokePaint)
+            canvas.drawLine(w, 0F, w, width.toFloat(), strokePaint)
             w += width / 8
         }
 
@@ -85,14 +86,17 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
             if (it.isSet) {
                 when (it.color) {
                     com.yonce3.ocero.Color.BLACK -> {
-                        canvas?.drawCircle(it.centerX!!, it.centerY!!, radius, paintBlack)
+                        canvas.drawCircle(it.centerX!!, it.centerY!!, radius, paintBlack)
                     }
                     com.yonce3.ocero.Color.WHITE -> {
-                        canvas?.drawCircle(it.centerX!!, it.centerY!!, radius, paintWhite)
+                        canvas.drawCircle(it.centerX!!, it.centerY!!, radius, paintWhite)
                     }
                 }
             }
         }
+
+        // 挟まれていたら、ひっくり返す
+
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -104,9 +108,34 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         return super.onKeyDown(keyCode, event)
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         // TODO: タップした位置のマスを判定して、石を追加する
+        val xPoint = event.x
+        val yPoint = event.y
+        val tappedCell = cellList.filter { it.h1?.toInt()!! < yPoint
+                && it.h2?.toInt()!! > yPoint
+                && it.w1?.toInt()!! < xPoint
+                && it.w2?.toInt()!! > xPoint
+                && !it.isSet}
+
+        if (tappedCell.isNotEmpty()) {
+            tappedCell.first().apply {
+                isSet = true
+                if (switch) {
+                    color = com.yonce3.ocero.Color.WHITE
+                    switch = false
+                } else {
+                    color = com.yonce3.ocero.Color.BLACK
+                    switch = true
+                }
+            }
+        }
         invalidate()
         return super.onTouchEvent(event)
+    }
+
+    fun clearView() {
+        cellList.clear()
+        invalidate()
     }
 }
