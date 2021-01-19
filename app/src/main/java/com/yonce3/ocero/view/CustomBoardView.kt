@@ -41,6 +41,20 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         // マスのオブジェクトを作成
         cellWidth = (width / 8).toFloat()
         setInit(cellWidth)
+        if (switch) { // 白の手番の時
+            cellList.filter { it.color == com.yonce3.ocero.Color.WHITE }.map {cell ->
+                // 左の確認
+                if (cellList.filter { it.x == (cell.x - 1)}.first().color == com.yonce3.ocero.Color.BLACK) {
+                    cellList.filter { it.x == (cell.x - 2)}.first().apply {
+                        isPut = true
+                    }
+
+                }
+            }
+
+        } else {
+
+        }
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
@@ -59,6 +73,10 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         var radius = (width / 8 / 2).toFloat()
         // 石を描画
         cellList.map {
+            if (it.isPut) {
+                canvas.drawCircle(it.centerX!!, it.centerY!!, radius, paintBlack)
+            }
+
             if (it.isSet) {
                 when (it.color) {
                     com.yonce3.ocero.Color.BLACK -> {
@@ -80,14 +98,14 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        // TODO: タップした位置のマスを判定して、石を追加する
         val xPoint = event.x
         val yPoint = event.y
         val tappedCell = cellList.filter { it.h1?.toInt()!! < yPoint
                 && it.h2?.toInt()!! > yPoint
                 && it.w1?.toInt()!! < xPoint
                 && it.w2?.toInt()!! > xPoint
-                && !it.isSet}
+                && !it.isSet
+                && it.isPut}
 
         if (tappedCell.isNotEmpty()) {
             tappedCell.first().apply {

@@ -9,6 +9,7 @@ data class Cell(val x: Int,
                 val centerX : Float?,
                 val centerY: Float?,
                 var isSet: Boolean,
+                var isPut: Boolean = false,
                 var color: Color = Color.NONE
 )
 
