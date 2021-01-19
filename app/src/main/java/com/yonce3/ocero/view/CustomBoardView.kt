@@ -16,6 +16,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     private var paintWhite: Paint
     private var strokePaint: Paint
     private var switch: Boolean = true
+    private var cellWidth: Float = 0F
 
     init {
         // 黒の石のペイント
@@ -38,33 +39,8 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         // マスのオブジェクトを作成
-        val cellWidth = (width / 8).toFloat()
-        var w1 = 0F
-        var h1 = 0F
-        var w2 = cellWidth
-        var h2 = cellWidth
-
-        for(x in 1..8) {
-            for (y in 1..8) {
-                cellList.add(Cell(x, y, w1, h1, w2, h2, (w1 + w2)/2, (h1 + h2)/2, false))
-                h1 += cellWidth
-                h2 += cellWidth
-            }
-            h1 = 0F
-            h2 = cellWidth
-            w1 += cellWidth
-            w2 += cellWidth
-        }
-
-        // 初期石を作成
-        cellList.filter { it.x == 4 && it.y == 4 || it.x == 5 && it.y == 5}.map {
-            it.isSet = true
-            it.color = com.yonce3.ocero.Color.WHITE
-        }
-        cellList.filter { it.x == 4 && it.y == 5 || it.x == 5 && it.y == 4 }.map {
-            it.isSet = true
-            it.color = com.yonce3.ocero.Color.BLACK
-        }
+        cellWidth = (width / 8).toFloat()
+        setInit(cellWidth)
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
@@ -103,11 +79,6 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-
-        return super.onKeyDown(keyCode, event)
-    }
-
     override fun onTouchEvent(event: MotionEvent): Boolean {
         // TODO: タップした位置のマスを判定して、石を追加する
         val xPoint = event.x
@@ -136,6 +107,36 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
 
     fun clearView() {
         cellList.clear()
+        setInit(cellWidth)
         invalidate()
+    }
+
+    private fun setInit(cellWidth: Float) {
+        var w1 = 0F
+        var h1 = 0F
+        var w2 = cellWidth
+        var h2 = cellWidth
+
+        for(x in 1..8) {
+            for (y in 1..8) {
+                cellList.add(Cell(x, y, w1, h1, w2, h2, (w1 + w2)/2, (h1 + h2)/2, false))
+                h1 += cellWidth
+                h2 += cellWidth
+            }
+            h1 = 0F
+            h2 = cellWidth
+            w1 += cellWidth
+            w2 += cellWidth
+        }
+
+        // 初期石を作成
+        cellList.filter { it.x == 4 && it.y == 4 || it.x == 5 && it.y == 5}.map {
+            it.isSet = true
+            it.color = com.yonce3.ocero.Color.WHITE
+        }
+        cellList.filter { it.x == 4 && it.y == 5 || it.x == 5 && it.y == 4 }.map {
+            it.isSet = true
+            it.color = com.yonce3.ocero.Color.BLACK
+        }
     }
 }
