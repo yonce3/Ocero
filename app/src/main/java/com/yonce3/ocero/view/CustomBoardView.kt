@@ -17,6 +17,8 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     private var strokePaint: Paint
     private var switch: Boolean = true
     private var cellWidth: Float = 0F
+    private var lockRadius: Float = 0F
+    private var pointRadius: Float = 0F
 
     init {
         // 黒の石のペイント
@@ -40,20 +42,20 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         // マスのオブジェクトを作成
         cellWidth = (width / 8).toFloat()
+
+        // 石の半径
+        lockRadius = (width / 8 / 2).toFloat()
+
+        // ポイントの半径
+        pointRadius = lockRadius / 2
+
         setInit(cellWidth)
-        if (switch) { // 白の手番の時
-            cellList.filter { it.color == com.yonce3.ocero.Color.WHITE }.map {cell ->
-                // 左の確認
-                if (cellList.filter { it.x == (cell.x - 1)}.first().color == com.yonce3.ocero.Color.BLACK) {
-                    cellList.filter { it.x == (cell.x - 2)}.first().apply {
-                        isPut = true
-                    }
 
-                }
-            }
+        val whiteList = cellList.filter { it.color == com.yonce3.ocero.Color.WHITE }
+        whiteList.map {cell ->
+            checkLeft(cell)
 
-        } else {
-
+            checkRight(cell)
         }
         super.onSizeChanged(w, h, oldw, oldh)
     }
@@ -70,31 +72,25 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
             w += width / 8
         }
 
-        var radius = (width / 8 / 2).toFloat()
         // 石を描画
         cellList.map {
             if (it.isPut) {
-                canvas.drawCircle(it.centerX!!, it.centerY!!, radius, paintBlack)
+                canvas.drawCircle(it.centerX!!, it.centerY!!, pointRadius, paintBlack)
             }
 
             if (it.isSet) {
                 when (it.color) {
                     com.yonce3.ocero.Color.BLACK -> {
-                        canvas.drawCircle(it.centerX!!, it.centerY!!, radius, paintBlack)
+                        canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, paintBlack)
                     }
                     com.yonce3.ocero.Color.WHITE -> {
-                        canvas.drawCircle(it.centerX!!, it.centerY!!, radius, paintWhite)
+                        canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, paintWhite)
+                        canvas.drawText(it.x.toString(), it.centerX!!, it.centerY, paintBlack)
                     }
                 }
             }
         }
 
-        // 挟まれていたら、ひっくり返す
-
-    }
-
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -113,12 +109,16 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
                 if (switch) {
                     color = com.yonce3.ocero.Color.WHITE
                     switch = false
+                    checkReverse(this)
                 } else {
                     color = com.yonce3.ocero.Color.BLACK
                     switch = true
+                    checkReverse(this)
                 }
             }
         }
+
+        checkPutAbleArea()
         invalidate()
         return super.onTouchEvent(event)
     }
@@ -155,6 +155,48 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         cellList.filter { it.x == 4 && it.y == 5 || it.x == 5 && it.y == 4 }.map {
             it.isSet = true
             it.color = com.yonce3.ocero.Color.BLACK
+        }
+    }
+
+    private fun checkLeft(cell: Cell) {
+        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
+        var leftIndex = if (cell.x == 1) cell.y else selfIndex - 8
+        if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
+            cellList[leftIndex - 8].isPut = true
+        }
+    }
+
+    private fun checkRight(cell: Cell) {
+        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
+        var rightIndex = if (cell.x == 1) cell.y else selfIndex + 8
+        if (switch && cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK) {
+            cellList[rightIndex + 8].isPut = true
+        } else if (!switch && cellList[rightIndex].color == com.yonce3.ocero.Color.WHITE) {
+            cellList[rightIndex + 8].isPut = true
+        }
+    }
+
+    private fun checkReverse(addedCell: Cell) {
+        var selfIndex = (addedCell.x - 1) * 8 + addedCell.y - 1
+        var rightIndex = if (addedCell.x == 1) addedCell.y else selfIndex + 8
+        if (cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK) {
+            if (cellList[rightIndex + 8].color == com.yonce3.ocero.Color.WHITE) {
+                cellList[rightIndex].color = com.yonce3.ocero.Color.WHITE
+            }
+        }
+    }
+
+    private fun checkPutAbleArea() {
+
+        // タップ可能判定をリセット
+        cellList.map {
+            it.isPut = false
+        }
+
+        if (switch) {
+
+        } else {
+
         }
     }
 }
