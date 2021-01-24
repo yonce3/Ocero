@@ -5,10 +5,10 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import com.yonce3.ocero.Cell
+import java.lang.IndexOutOfBoundsException
 
 class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attrs) {
     private var cellList = arrayListOf<Cell>()
@@ -56,6 +56,10 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
             checkLeft(cell)
 
             checkRight(cell)
+
+            checkTop(cell)
+
+            checkBottom(cell)
         }
         super.onSizeChanged(w, h, oldw, oldh)
     }
@@ -85,7 +89,6 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
                     }
                     com.yonce3.ocero.Color.WHITE -> {
                         canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, paintWhite)
-                        canvas.drawText(it.x.toString(), it.centerX!!, it.centerY, paintBlack)
                     }
                 }
             }
@@ -108,17 +111,19 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
                 isSet = true
                 if (switch) {
                     color = com.yonce3.ocero.Color.WHITE
-                    switch = false
                     checkReverse(this)
+                    switch = false
                 } else {
                     color = com.yonce3.ocero.Color.BLACK
-                    switch = true
                     checkReverse(this)
+                    switch = true
                 }
+
+                checkPutAbleArea(this)
             }
         }
 
-        checkPutAbleArea()
+
         invalidate()
         return super.onTouchEvent(event)
     }
@@ -176,27 +181,279 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         }
     }
 
-    private fun checkReverse(addedCell: Cell) {
-        var selfIndex = (addedCell.x - 1) * 8 + addedCell.y - 1
-        var rightIndex = if (addedCell.x == 1) addedCell.y else selfIndex + 8
-        if (cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK) {
-            if (cellList[rightIndex + 8].color == com.yonce3.ocero.Color.WHITE) {
-                cellList[rightIndex].color = com.yonce3.ocero.Color.WHITE
-            }
+    private fun checkBottom(cell: Cell) {
+        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
+        var bottomIndex = if (cell.x == 1) cell.y else selfIndex + 1
+        if (switch && cellList[bottomIndex].color == com.yonce3.ocero.Color.BLACK) {
+            cellList[bottomIndex + 1].isPut = true
+        } else if (!switch && cellList[bottomIndex].color == com.yonce3.ocero.Color.WHITE) {
+            cellList[bottomIndex + 1].isPut = true
         }
     }
 
-    private fun checkPutAbleArea() {
+    private fun checkTop(cell: Cell) {
+        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
+        var topIndex = if (cell.x == 1) cell.y else selfIndex - 1
+        if (switch && cellList[topIndex].color == com.yonce3.ocero.Color.BLACK) {
+            cellList[topIndex - 1].isPut = true
+        } else if (!switch && cellList[topIndex].color == com.yonce3.ocero.Color.WHITE) {
+            cellList[topIndex - 1].isPut = true
+        }
+    }
+
+    private fun checkReverse(addedCell: Cell) {
+        var selfIndex = (addedCell.x - 1) * 8 + addedCell.y - 1
+
+        var rightIndex = if (addedCell.x == 1) addedCell.y else selfIndex + 8
+        checkRightReverse(addedCell, rightIndex)
+
+//        var rightIndex = if (addedCell.x == 1) addedCell.y else selfIndex + 8
+//        if (cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK) {
+//            if (cellList[rightIndex + 8].color == com.yonce3.ocero.Color.WHITE) {
+//                cellList[rightIndex].color = com.yonce3.ocero.Color.WHITE
+//            }
+//        }
+
+        var leftIndex = if (addedCell.x == 1) addedCell.y else selfIndex - 8
+        checkLeftReverse(addedCell, leftIndex)
+//        if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
+//            if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.WHITE) {
+//                cellList[leftIndex].color = com.yonce3.ocero.Color.WHITE
+//            }
+//        }
+
+        var bottomIndex = if (addedCell.x == 1) addedCell.y else selfIndex + 1
+        checkBottomReverse(addedCell, bottomIndex)
+//        if (cellList[bottomIndex].color == com.yonce3.ocero.Color.BLACK) {
+//            if (cellList[bottomIndex + 1].color == com.yonce3.ocero.Color.WHITE) {
+//                cellList[bottomIndex].color = com.yonce3.ocero.Color.WHITE
+//            }
+//        }
+
+        var topIndex = if (addedCell.x == 1) addedCell.y else selfIndex - 1
+        checkTopReverse(addedCell, topIndex)
+//        if (cellList[topIndex].color == com.yonce3.ocero.Color.BLACK) {
+//            if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.WHITE) {
+//                cellList[topIndex].color = com.yonce3.ocero.Color.WHITE
+//            }
+//        }
+    }
+
+    private fun checkRightReverse(addedCell: Cell, rightIndex: Int) {
+        try {
+            if (switch) {
+                if (cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK) {
+                    if (cellList[rightIndex + 8].color == com.yonce3.ocero.Color.WHITE) {
+                        cellList[rightIndex].color = com.yonce3.ocero.Color.WHITE
+                    } else {
+                        checkRightReverse(addedCell, rightIndex + 8)
+                    }
+                }
+            } else {
+                if (cellList[rightIndex].color == com.yonce3.ocero.Color.WHITE) {
+                    if (cellList[rightIndex + 8].color == com.yonce3.ocero.Color.BLACK) {
+                        cellList[rightIndex].color = com.yonce3.ocero.Color.BLACK
+                    } else {
+                        checkRightReverse(addedCell, rightIndex + 8)
+                    }
+                }
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            return
+        }
+    }
+
+    private fun checkLeftReverse(addedCell: Cell, leftIndex: Int) {
+        try {
+            if (switch) {
+                if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
+                    if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.WHITE) {
+                        cellList[leftIndex].color = com.yonce3.ocero.Color.WHITE
+                    } else {
+                        checkRightReverse(addedCell, leftIndex - 8)
+                    }
+                }
+            } else {
+                if (cellList[leftIndex].color == com.yonce3.ocero.Color.WHITE) {
+                    if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.BLACK) {
+                        cellList[leftIndex].color = com.yonce3.ocero.Color.BLACK
+                    } else {
+                        checkRightReverse(addedCell, leftIndex - 8)
+                    }
+                }
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            return
+        }
+    }
+
+    private fun checkBottomReverse(addedCell: Cell, bottomIndex: Int) {
+        try {
+            if (switch) {
+                if (cellList[bottomIndex].color == com.yonce3.ocero.Color.BLACK) {
+                    if (cellList[bottomIndex + 1].color == com.yonce3.ocero.Color.WHITE) {
+                        cellList[bottomIndex].color = com.yonce3.ocero.Color.WHITE
+                    } else {
+                        checkRightReverse(addedCell, bottomIndex + 1)
+                    }
+                }
+            } else {
+                if (cellList[bottomIndex].color == com.yonce3.ocero.Color.WHITE) {
+                    if (cellList[bottomIndex + 1].color == com.yonce3.ocero.Color.BLACK) {
+                        cellList[bottomIndex].color = com.yonce3.ocero.Color.BLACK
+                    } else {
+                        checkRightReverse(addedCell, bottomIndex + 1)
+                    }
+                }
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            return
+        }
+    }
+
+    private fun checkTopReverse(addedCell: Cell, topIndex: Int) {
+        try {
+            if (switch) {
+                if (cellList[topIndex].color == com.yonce3.ocero.Color.BLACK) {
+                    if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.WHITE) {
+                        cellList[topIndex].color = com.yonce3.ocero.Color.WHITE
+                    } else {
+                        checkRightReverse(addedCell, topIndex - 1)
+                    }
+                }
+            } else {
+                if (cellList[topIndex].color == com.yonce3.ocero.Color.WHITE) {
+                    if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.BLACK) {
+                        cellList[topIndex].color = com.yonce3.ocero.Color.BLACK
+                    } else {
+                        checkRightReverse(addedCell, topIndex - 1)
+                    }
+                }
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            return
+        }
+    }
+
+    private fun checkPutAbleArea(addedCell: Cell) {
+        var selfIndex = (addedCell.x - 1) * 8 + addedCell.y - 1
 
         // タップ可能判定をリセット
         cellList.map {
             it.isPut = false
         }
 
-        if (switch) {
+        var topIndex = selfIndex - 1
+        checkTopPutAble(topIndex)
 
-        } else {
+        var bottomIndex = selfIndex + 1
+        checkBottomPutAble(bottomIndex)
 
+        var rightIndex = selfIndex + 8
+        checkRightPutAble(rightIndex)
+
+        var leftIndex = selfIndex - 8
+        checkLeftPutAble(leftIndex)
+    }
+
+    private fun checkTopPutAble() {
+        cellList.filter { it.isSet }.map {
+            var selfIndex = (it.x - 1) * 8 + it.y - 1
+            var topIndex = selfIndex - 1
+            if (switch) {
+                checkPutForWhite(topIndex)
+                if (cellList[topIndex].color == com.yonce3.ocero.Color.BLACK) {
+                    if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.NONE) {
+                        cellList[topIndex].isPut = true
+                    } else {
+                        checkTopPutAble()
+                    }
+                }
+            } else {
+                if (cellList[topIndex].color == com.yonce3.ocero.Color.WHITE) {
+                    if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.NONE) {
+                        cellList[topIndex].isPut = true
+                    } else {
+                        checkTopPutAble(topIndex - 1)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkPutForWhite(topIndex: Int) {
+        if (cellList[topIndex].color == com.yonce3.ocero.Color.BLACK) {
+            if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.NONE) {
+                cellList[topIndex].isPut = true
+            } else {
+                checkTopPutAble()
+            }
+        }
+    }
+
+    private fun checkBottomPutAble(bottomIndex: Int) {
+        cellList.filter { it.isSet }.map {
+            if (switch) {
+                if (cellList[bottomIndex].color == com.yonce3.ocero.Color.BLACK) {
+                    if (cellList[bottomIndex + 1].color == com.yonce3.ocero.Color.NONE) {
+                        cellList[bottomIndex].isPut = true
+                    } else {
+                        checkBottomPutAble(bottomIndex + 1)
+                    }
+                }
+            } else {
+                if (cellList[bottomIndex].color == com.yonce3.ocero.Color.WHITE) {
+                    if (cellList[bottomIndex + 1].color == com.yonce3.ocero.Color.NONE) {
+                        cellList[bottomIndex].isPut = true
+                    } else {
+                        checkBottomPutAble(bottomIndex + 1)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkRightPutAble(rightIndex: Int) {
+        cellList.filter { it.isSet }.map {
+            if (switch) {
+                if (cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK) {
+                    if (cellList[rightIndex + 8].color == com.yonce3.ocero.Color.NONE) {
+                        cellList[rightIndex + 8].isPut = true
+                    } else {
+                        checkRightPutAble(rightIndex + 8)
+                    }
+                }
+            } else {
+                if (cellList[rightIndex].color == com.yonce3.ocero.Color.WHITE) {
+                    if (cellList[rightIndex + 8].color == com.yonce3.ocero.Color.NONE) {
+                        cellList[rightIndex + 8].isPut = true
+                    } else {
+                        checkRightPutAble(rightIndex + 8)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkLeftPutAble(leftIndex: Int) {
+        cellList.filter { it.isSet }.map {
+            if (switch) {
+                if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
+                    if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.NONE) {
+                        cellList[leftIndex - 8].isPut = true
+                    } else {
+                        checkLeftPutAble(leftIndex - 8)
+                    }
+                }
+            } else {
+                if (cellList[leftIndex].color == com.yonce3.ocero.Color.WHITE) {
+                    if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.NONE) {
+                        cellList[leftIndex - 8].isPut = true
+                    } else {
+                        checkLeftPutAble(leftIndex - 8)
+                    }
+                }
+            }
         }
     }
 }
