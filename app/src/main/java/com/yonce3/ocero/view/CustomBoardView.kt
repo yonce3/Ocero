@@ -344,7 +344,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         }
 
         var topIndex = selfIndex - 1
-        checkTopPutAble(topIndex)
+        //checkTopPutAble()
 
         var bottomIndex = selfIndex + 1
         checkBottomPutAble(bottomIndex)
@@ -374,7 +374,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
                     if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.NONE) {
                         cellList[topIndex].isPut = true
                     } else {
-                        checkTopPutAble(topIndex - 1)
+                        checkTopPutAble()
                     }
                 }
             }
@@ -436,21 +436,27 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     }
 
     private fun checkLeftPutAble(leftIndex: Int) {
-        cellList.filter { it.isSet }.map {
-            if (switch) {
+        if (switch) {
+            cellList.filter { it.isSet && it.color == com.yonce3.ocero.Color.WHITE }.map {
+                var selfIndex = (it.x - 1) * 8 + it.y - 1
+                var leftIndex = selfIndex - 8
                 if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
                     if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.NONE) {
                         cellList[leftIndex - 8].isPut = true
                     } else {
-                        checkLeftPutAble(leftIndex - 8)
+                        //checkLeftPutAble(leftIndex - 8)
                     }
                 }
-            } else {
+            }
+        } else {
+            cellList.filter { it.isSet && it.color == com.yonce3.ocero.Color.BLACK }.map {
+                var selfIndex = (it.x - 1) * 8 + it.y - 1
+                var leftIndex = selfIndex - 8
                 if (cellList[leftIndex].color == com.yonce3.ocero.Color.WHITE) {
                     if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.NONE) {
                         cellList[leftIndex - 8].isPut = true
                     } else {
-                        checkLeftPutAble(leftIndex - 8)
+                        //checkLeftPutAble(leftIndex - 8)
                     }
                 }
             }
