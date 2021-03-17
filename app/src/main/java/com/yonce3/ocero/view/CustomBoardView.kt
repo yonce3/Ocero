@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.yonce3.ocero.Board
 import com.yonce3.ocero.Cell
 import java.lang.IndexOutOfBoundsException
 
@@ -19,6 +20,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     private var cellWidth: Float = 0F
     private var lockRadius: Float = 0F
     private var pointRadius: Float = 0F
+    private var board: Board = Board()
 
     init {
         // 黒の石のペイント
@@ -33,6 +35,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
             this.style = Paint.Style.FILL
         }
 
+        // 枠線のペイント
         strokePaint = Paint().apply {
             this.strokeWidth = 10F
             this.style = Paint.Style.STROKE
@@ -77,7 +80,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         }
 
         // 石を描画
-        cellList.map {
+        board.cellList.map {
             if (it.isPut) {
                 canvas.drawCircle(it.centerX!!, it.centerY!!, pointRadius, paintBlack)
             }
@@ -142,6 +145,8 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
 
         for(x in 1..8) {
             for (y in 1..8) {
+                val cell = Cell(x, y, w1, h1, w2, h2, (w1 + w2)/2, (h1 + h2)/2, false)
+                board.cellList.add(cell)
                 cellList.add(Cell(x, y, w1, h1, w2, h2, (w1 + w2)/2, (h1 + h2)/2, false))
                 h1 += cellWidth
                 h2 += cellWidth
@@ -152,15 +157,17 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
             w2 += cellWidth
         }
 
+         board.init()
+
         // 初期石を作成
-        cellList.filter { it.x == 4 && it.y == 4 || it.x == 5 && it.y == 5}.map {
-            it.isSet = true
-            it.color = com.yonce3.ocero.Color.WHITE
-        }
-        cellList.filter { it.x == 4 && it.y == 5 || it.x == 5 && it.y == 4 }.map {
-            it.isSet = true
-            it.color = com.yonce3.ocero.Color.BLACK
-        }
+//        cellList.filter { it.x == 4 && it.y == 4 || it.x == 5 && it.y == 5}.map {
+//            it.isSet = true
+//            it.color = com.yonce3.ocero.Color.WHITE
+//        }
+//        cellList.filter { it.x == 4 && it.y == 5 || it.x == 5 && it.y == 4 }.map {
+//            it.isSet = true
+//            it.color = com.yonce3.ocero.Color.BLACK
+//        }
     }
 
     private fun checkLeft(cell: Cell) {
