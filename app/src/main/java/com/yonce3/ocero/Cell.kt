@@ -13,6 +13,14 @@ data class Cell(val x: Int,
                 var color: Color = Color.NONE
 )
 
+// 拡張for文
+fun Cell.set(color: Color) {
+    this.apply {
+        isSet = true
+        this.color = color
+    }
+}
+
 enum class Color {
     NONE,
     BLACK,
