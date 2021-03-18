@@ -52,19 +52,62 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         // ポイントの半径
         pointRadius = lockRadius / 2
 
-        setInit(cellWidth)
+        board.init(cellWidth)
 
-        val whiteList = cellList.filter { it.color == com.yonce3.ocero.Color.WHITE }
+        val whiteList = board.cellList.filter { it.color == com.yonce3.ocero.Color.WHITE }
         whiteList.map {cell ->
-            checkLeft(cell)
-
-            checkRight(cell)
-
-            checkTop(cell)
-
-            checkBottom(cell)
+            checkCell(cell)
+//            checkLeft(cell)
+//
+//            checkRight(cell)
+//
+//            checkTop(cell)
+//
+//            checkBottom(cell)
         }
         super.onSizeChanged(w, h, oldw, oldh)
+    }
+
+    fun checkCell(cell: Cell) {
+        checkLeftWhite(cell)
+
+        checkRightWhite(cell)
+    }
+
+    fun checkLeftWhite(cell: Cell) {
+        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
+        var leftIndex = if (cell.x == 1) cell.y else selfIndex - 8
+        var flag = true
+        var cellList = board.cellList
+        while (flag) {
+            if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK
+                && cellList[leftIndex - 8].color == com.yonce3.ocero.Color.NONE) {
+                cellList[leftIndex - 8].isPut = true
+                flag = false
+            } else if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
+                leftIndex -= 8
+            } else {
+                flag = false
+            }
+        }
+    }
+
+    fun checkRightWhite(cell: Cell) {
+        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
+        var rightIndex = if (cell.x == 1) cell.y else selfIndex + 8
+        var flag = true
+        var cellList = board.cellList
+        while (flag) {
+            if (cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK
+                && cellList[rightIndex + 8].color == com.yonce3.ocero.Color.NONE) {
+                cellList[rightIndex + 8].isPut = true
+                flag = false
+            } else if (cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK) {
+                rightIndex += 8
+            } else {
+                flag = false
+            }
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -102,7 +145,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val xPoint = event.x
         val yPoint = event.y
-        val tappedCell = cellList.filter { it.h1?.toInt()!! < yPoint
+        val tappedCell = board.cellList.filter { it.h1?.toInt()!! < yPoint
                 && it.h2?.toInt()!! > yPoint
                 && it.w1?.toInt()!! < xPoint
                 && it.w2?.toInt()!! > xPoint
@@ -133,41 +176,8 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
 
     fun clearView() {
         cellList.clear()
-        setInit(cellWidth)
+        board.init(cellWidth)
         invalidate()
-    }
-
-    private fun setInit(cellWidth: Float) {
-        var w1 = 0F
-        var h1 = 0F
-        var w2 = cellWidth
-        var h2 = cellWidth
-
-        for(x in 1..8) {
-            for (y in 1..8) {
-                val cell = Cell(x, y, w1, h1, w2, h2, (w1 + w2)/2, (h1 + h2)/2, false)
-                board.cellList.add(cell)
-                cellList.add(Cell(x, y, w1, h1, w2, h2, (w1 + w2)/2, (h1 + h2)/2, false))
-                h1 += cellWidth
-                h2 += cellWidth
-            }
-            h1 = 0F
-            h2 = cellWidth
-            w1 += cellWidth
-            w2 += cellWidth
-        }
-
-         board.init()
-
-        // 初期石を作成
-//        cellList.filter { it.x == 4 && it.y == 4 || it.x == 5 && it.y == 5}.map {
-//            it.isSet = true
-//            it.color = com.yonce3.ocero.Color.WHITE
-//        }
-//        cellList.filter { it.x == 4 && it.y == 5 || it.x == 5 && it.y == 4 }.map {
-//            it.isSet = true
-//            it.color = com.yonce3.ocero.Color.BLACK
-//        }
     }
 
     private fun checkLeft(cell: Cell) {
@@ -346,7 +356,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         var selfIndex = (addedCell.x - 1) * 8 + addedCell.y - 1
 
         // タップ可能判定をリセット
-        cellList.map {
+        board.cellList.map {
             it.isPut = false
         }
 
