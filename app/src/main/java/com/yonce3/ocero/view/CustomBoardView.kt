@@ -13,34 +13,29 @@ import java.lang.IndexOutOfBoundsException
 
 class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attrs) {
     private var cellList = arrayListOf<Cell>()
-    private var paintBlack: Paint
-    private var paintWhite: Paint
-    private var strokePaint: Paint
+    private var stonePaintBlack: Paint = Paint().apply {
+        color = Color.BLACK
+        style = Paint.Style.FILL
+    }
+    private var stonePaintWhite: Paint = Paint().apply {
+        color = Color.WHITE
+        style = Paint.Style.FILL
+    }
+    private var stonePaintGray: Paint = Paint().apply {
+        color = Color.GRAY
+        style = Paint.Style.FILL
+    }
+    private var strokePaint: Paint = Paint().apply {
+        strokeWidth = 10F
+        style = Paint.Style.STROKE
+    }
     private var switch: Boolean = true
     private var cellWidth: Float = 0F
     private var lockRadius: Float = 0F
     private var pointRadius: Float = 0F
     private var board: Board = Board()
-
-    init {
-        // 黒の石のペイント
-        paintBlack = Paint().apply {
-            this.color = Color.BLACK
-            this.style = Paint.Style.FILL
-        }
-
-        // 白の石のペイント
-        paintWhite = Paint().apply {
-            this.color = Color.WHITE
-            this.style = Paint.Style.FILL
-        }
-
-        // 枠線のペイント
-        strokePaint = Paint().apply {
-            this.strokeWidth = 10F
-            this.style = Paint.Style.STROKE
-        }
-    }
+    private var white = com.yonce3.ocero.Color.WHITE
+    private var black = com.yonce3.ocero.Color.BLACK
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         // マスのオブジェクトを作成
@@ -54,60 +49,11 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
 
         board.init(cellWidth)
 
-        val whiteList = board.cellList.filter { it.color == com.yonce3.ocero.Color.WHITE }
+        val whiteList = board.cellList.filter { it.color == white }
         whiteList.map {cell ->
-            checkCell(cell)
-//            checkLeft(cell)
-//
-//            checkRight(cell)
-//
-//            checkTop(cell)
-//
-//            checkBottom(cell)
+            board.checkCell(cell)
         }
         super.onSizeChanged(w, h, oldw, oldh)
-    }
-
-    fun checkCell(cell: Cell) {
-        checkLeftWhite(cell)
-
-        checkRightWhite(cell)
-    }
-
-    fun checkLeftWhite(cell: Cell) {
-        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
-        var leftIndex = if (cell.x == 1) cell.y else selfIndex - 8
-        var flag = true
-        var cellList = board.cellList
-        while (flag) {
-            if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK
-                && cellList[leftIndex - 8].color == com.yonce3.ocero.Color.NONE) {
-                cellList[leftIndex - 8].isPut = true
-                flag = false
-            } else if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
-                leftIndex -= 8
-            } else {
-                flag = false
-            }
-        }
-    }
-
-    fun checkRightWhite(cell: Cell) {
-        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
-        var rightIndex = if (cell.x == 1) cell.y else selfIndex + 8
-        var flag = true
-        var cellList = board.cellList
-        while (flag) {
-            if (cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK
-                && cellList[rightIndex + 8].color == com.yonce3.ocero.Color.NONE) {
-                cellList[rightIndex + 8].isPut = true
-                flag = false
-            } else if (cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK) {
-                rightIndex += 8
-            } else {
-                flag = false
-            }
-        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -125,16 +71,16 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         // 石を描画
         board.cellList.map {
             if (it.isPut) {
-                canvas.drawCircle(it.centerX!!, it.centerY!!, pointRadius, paintBlack)
+                canvas.drawCircle(it.centerX!!, it.centerY!!, pointRadius, stonePaintGray)
             }
 
             if (it.isSet) {
                 when (it.color) {
-                    com.yonce3.ocero.Color.BLACK -> {
-                        canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, paintBlack)
+                    black -> {
+                        canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, stonePaintBlack)
                     }
-                    com.yonce3.ocero.Color.WHITE -> {
-                        canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, paintWhite)
+                    white -> {
+                        canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, stonePaintWhite)
                     }
                 }
             }
@@ -145,115 +91,55 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val xPoint = event.x
         val yPoint = event.y
-        val tappedCell = board.cellList.filter { it.h1?.toInt()!! < yPoint
+        val tappedCellList = board.cellList.filter { it.h1?.toInt()!! < yPoint
                 && it.h2?.toInt()!! > yPoint
                 && it.w1?.toInt()!! < xPoint
                 && it.w2?.toInt()!! > xPoint
                 && !it.isSet
                 && it.isPut}
 
-        if (tappedCell.isNotEmpty()) {
-            tappedCell.first().apply {
+        if (tappedCellList.isNotEmpty()) {
+            tappedCellList.first().apply {
                 isSet = true
-                if (switch) {
-                    color = com.yonce3.ocero.Color.WHITE
-                    checkReverse(this)
-                    switch = false
+                if (board.player) {
+                    color = white
+                    board.checkReverse(this)
+                    board.player = false
                 } else {
                     color = com.yonce3.ocero.Color.BLACK
-                    checkReverse(this)
-                    switch = true
+                    board.checkReverse(this)
+                    board.player = true
                 }
 
-                checkPutAbleArea(this)
+                board.cellList
             }
+        } else {
+            return false
         }
 
+        // リセット
+        board.cellList.map {
+            it.isPut = false
+        }
+
+        var checkList = if (board.player) board.cellList.filter { it.color == white } else board.cellList.filter { it.color == black }
+        checkList.map {
+            board.checkCell(it)
+        }
 
         invalidate()
         return super.onTouchEvent(event)
     }
 
     fun clearView() {
-        cellList.clear()
+        board = board.reset()
         board.init(cellWidth)
+
+        val whiteList = board.cellList.filter { it.color == white }
+        whiteList.map {cell ->
+            board.checkCell(cell)
+        }
         invalidate()
-    }
-
-    private fun checkLeft(cell: Cell) {
-        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
-        var leftIndex = if (cell.x == 1) cell.y else selfIndex - 8
-        if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
-            cellList[leftIndex - 8].isPut = true
-        }
-    }
-
-    private fun checkRight(cell: Cell) {
-        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
-        var rightIndex = if (cell.x == 1) cell.y else selfIndex + 8
-        if (switch && cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK) {
-            cellList[rightIndex + 8].isPut = true
-        } else if (!switch && cellList[rightIndex].color == com.yonce3.ocero.Color.WHITE) {
-            cellList[rightIndex + 8].isPut = true
-        }
-    }
-
-    private fun checkBottom(cell: Cell) {
-        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
-        var bottomIndex = if (cell.x == 1) cell.y else selfIndex + 1
-        if (switch && cellList[bottomIndex].color == com.yonce3.ocero.Color.BLACK) {
-            cellList[bottomIndex + 1].isPut = true
-        } else if (!switch && cellList[bottomIndex].color == com.yonce3.ocero.Color.WHITE) {
-            cellList[bottomIndex + 1].isPut = true
-        }
-    }
-
-    private fun checkTop(cell: Cell) {
-        var selfIndex = (cell.x - 1) * 8 + cell.y - 1
-        var topIndex = if (cell.x == 1) cell.y else selfIndex - 1
-        if (switch && cellList[topIndex].color == com.yonce3.ocero.Color.BLACK) {
-            cellList[topIndex - 1].isPut = true
-        } else if (!switch && cellList[topIndex].color == com.yonce3.ocero.Color.WHITE) {
-            cellList[topIndex - 1].isPut = true
-        }
-    }
-
-    private fun checkReverse(addedCell: Cell) {
-        var selfIndex = (addedCell.x - 1) * 8 + addedCell.y - 1
-
-        var rightIndex = if (addedCell.x == 1) addedCell.y else selfIndex + 8
-        checkRightReverse(addedCell, rightIndex)
-
-//        var rightIndex = if (addedCell.x == 1) addedCell.y else selfIndex + 8
-//        if (cellList[rightIndex].color == com.yonce3.ocero.Color.BLACK) {
-//            if (cellList[rightIndex + 8].color == com.yonce3.ocero.Color.WHITE) {
-//                cellList[rightIndex].color = com.yonce3.ocero.Color.WHITE
-//            }
-//        }
-
-        var leftIndex = if (addedCell.x == 1) addedCell.y else selfIndex - 8
-        checkLeftReverse(addedCell, leftIndex)
-//        if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
-//            if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.WHITE) {
-//                cellList[leftIndex].color = com.yonce3.ocero.Color.WHITE
-//            }
-//        }
-
-        var bottomIndex = if (addedCell.x == 1) addedCell.y else selfIndex + 1
-        checkBottomReverse(addedCell, bottomIndex)
-//        if (cellList[bottomIndex].color == com.yonce3.ocero.Color.BLACK) {
-//            if (cellList[bottomIndex + 1].color == com.yonce3.ocero.Color.WHITE) {
-//                cellList[bottomIndex].color = com.yonce3.ocero.Color.WHITE
-//            }
-//        }
-
-        var topIndex = if (addedCell.x == 1) addedCell.y else selfIndex - 1
-        checkTopReverse(addedCell, topIndex)
-//        if (cellList[topIndex].color == com.yonce3.ocero.Color.BLACK) {
-//            if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.WHITE) {
-//                cellList[topIndex].color = com.yonce3.ocero.Color.WHITE
-//            }
-//        }
     }
 
     private fun checkRightReverse(addedCell: Cell, rightIndex: Int) {
@@ -272,78 +158,6 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
                         cellList[rightIndex].color = com.yonce3.ocero.Color.BLACK
                     } else {
                         checkRightReverse(addedCell, rightIndex + 8)
-                    }
-                }
-            }
-        } catch (e: IndexOutOfBoundsException) {
-            return
-        }
-    }
-
-    private fun checkLeftReverse(addedCell: Cell, leftIndex: Int) {
-        try {
-            if (switch) {
-                if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
-                    if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.WHITE) {
-                        cellList[leftIndex].color = com.yonce3.ocero.Color.WHITE
-                    } else {
-                        checkRightReverse(addedCell, leftIndex - 8)
-                    }
-                }
-            } else {
-                if (cellList[leftIndex].color == com.yonce3.ocero.Color.WHITE) {
-                    if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.BLACK) {
-                        cellList[leftIndex].color = com.yonce3.ocero.Color.BLACK
-                    } else {
-                        checkRightReverse(addedCell, leftIndex - 8)
-                    }
-                }
-            }
-        } catch (e: IndexOutOfBoundsException) {
-            return
-        }
-    }
-
-    private fun checkBottomReverse(addedCell: Cell, bottomIndex: Int) {
-        try {
-            if (switch) {
-                if (cellList[bottomIndex].color == com.yonce3.ocero.Color.BLACK) {
-                    if (cellList[bottomIndex + 1].color == com.yonce3.ocero.Color.WHITE) {
-                        cellList[bottomIndex].color = com.yonce3.ocero.Color.WHITE
-                    } else {
-                        checkRightReverse(addedCell, bottomIndex + 1)
-                    }
-                }
-            } else {
-                if (cellList[bottomIndex].color == com.yonce3.ocero.Color.WHITE) {
-                    if (cellList[bottomIndex + 1].color == com.yonce3.ocero.Color.BLACK) {
-                        cellList[bottomIndex].color = com.yonce3.ocero.Color.BLACK
-                    } else {
-                        checkRightReverse(addedCell, bottomIndex + 1)
-                    }
-                }
-            }
-        } catch (e: IndexOutOfBoundsException) {
-            return
-        }
-    }
-
-    private fun checkTopReverse(addedCell: Cell, topIndex: Int) {
-        try {
-            if (switch) {
-                if (cellList[topIndex].color == com.yonce3.ocero.Color.BLACK) {
-                    if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.WHITE) {
-                        cellList[topIndex].color = com.yonce3.ocero.Color.WHITE
-                    } else {
-                        checkRightReverse(addedCell, topIndex - 1)
-                    }
-                }
-            } else {
-                if (cellList[topIndex].color == com.yonce3.ocero.Color.WHITE) {
-                    if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.BLACK) {
-                        cellList[topIndex].color = com.yonce3.ocero.Color.BLACK
-                    } else {
-                        checkRightReverse(addedCell, topIndex - 1)
                     }
                 }
             }
