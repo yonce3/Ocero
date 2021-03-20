@@ -3,20 +3,24 @@ package com.yonce3.ocero
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
+import com.yonce3.ocero.databinding.ActivityMainBinding
 import com.yonce3.ocero.view.CustomBoardView
 import java.nio.BufferUnderflowException
 
 class MainActivity : AppCompatActivity() {
 
+    val mainViewModel = MainViewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main).apply {
+            this.viewModel = mainViewModel
+            lifecycleOwner = this@MainActivity
 
-        val boardView = findViewById<CustomBoardView>(R.id.board_view)
-
-        val resetButton = findViewById<Button>(R.id.reset_button).apply {
-            setOnClickListener { _ ->
-                boardView.clearView()
+            resetButton.setOnClickListener {
+                this.boardView.clearView()
             }
         }
     }

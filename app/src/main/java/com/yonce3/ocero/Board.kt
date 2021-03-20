@@ -42,11 +42,10 @@ class Board {
     }
 
     fun checkCell(cell: Cell) {
-        indexCountList.map { indexCount ->
+        checkIndexCountList(cell).map { indexCount ->
             var selfIndex = (cell.x - 1) * 8 + cell.y - 1
             var nextIndex = if (cell.x == 1) cell.y else selfIndex + indexCount
             var flag = true
-            var cellList = cellList
             var color = if (player) Color.BLACK else Color.WHITE
 
             while (flag) {
@@ -63,12 +62,20 @@ class Board {
         }
     }
 
+    private fun checkIndexCountList(cell: Cell): List<Int> =
+        when {
+            cell.x == 1 -> listOf(7, 8, 1)
+            cell.x == 7 -> listOf(1, -7, -8)
+            cell.y == 1 -> listOf(7, 8, 1, -7, -8)
+            cell.y == 7 -> listOf(-1, 7, 8, -8, -7)
+            else -> indexCountList
+        }
+
     fun checkReverse(addCell: Cell) {
-        indexCountList.map { indexCount ->
+        checkIndexCountList(addCell).map { indexCount ->
             var selfIndex = (addCell.x - 1) * 8 + addCell.y - 1
             var nextIndex = if (addCell.x == 1) addCell.y else selfIndex + indexCount
             var flag = true
-            var cellList = cellList
             var color = if (player) Color.BLACK else Color.WHITE
             var reverseColor = if (player) Color.WHITE else Color.BLACK
             var reversibleList = arrayListOf<Cell>()
