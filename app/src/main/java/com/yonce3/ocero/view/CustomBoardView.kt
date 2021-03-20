@@ -130,9 +130,12 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
 
         val activity = this.context
         if (activity is MainActivity) {
-            println("aaa")
             val playerText = if (board.player) "White" else "Black"
-            activity.mainViewModel.playerText.postValue(playerText)
+            activity.mainViewModel.apply {
+                this.playerText.postValue(playerText)
+                this.whiteCount.postValue((board.cellList.filter { it.color == com.yonce3.ocero.Color.WHITE }.size).toString())
+                this.blackCount.postValue((board.cellList.filter { it.color == com.yonce3.ocero.Color.BLACK }.size).toString())
+            }
         }
 
         invalidate()

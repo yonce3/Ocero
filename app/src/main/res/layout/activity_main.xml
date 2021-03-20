@@ -46,6 +46,52 @@
             android:layout_height="wrap_content"
             android:textSize="24sp" />
 
+        <TextView
+            android:id="@+id/white_count_text"
+            android:text="現在の白の数: "
+            android:textColor="@color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintTop_toBottomOf="@id/player_text"
+            app:layout_constraintStart_toStartOf="parent"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/white_count"
+            android:text="@{viewModel.whiteCount}"
+            android:textColor="@color/black"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/player_text"
+            app:layout_constraintStart_toEndOf="@id/white_count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/black_count_text"
+            android:text="現在の黒の数: "
+            android:textColor="@color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintTop_toBottomOf="@id/white_count_text"
+            app:layout_constraintStart_toStartOf="parent"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/black_count"
+            android:text="@{viewModel.blackCount}"
+            android:textColor="@color/black"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/white_count_text"
+            app:layout_constraintStart_toEndOf="@id/black_count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp" />
+
         <Button
             android:id="@+id/reset_button"
             android:text="@string/reset_button_text"
