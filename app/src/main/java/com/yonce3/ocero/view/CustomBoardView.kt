@@ -13,9 +13,22 @@ import java.lang.IndexOutOfBoundsException
 
 class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attrs) {
     private var cellList = arrayListOf<Cell>()
-    private var paintBlack: Paint
-    private var paintWhite: Paint
-    private var strokePaint: Paint
+    private var stonePaintBlack: Paint = Paint().apply {
+        color = Color.BLACK
+        style = Paint.Style.FILL
+    }
+    private var stonePaintWhite: Paint = Paint().apply {
+        color = Color.WHITE
+        style = Paint.Style.FILL
+    }
+    private var stonePaintGray: Paint = Paint().apply {
+        color = Color.GRAY
+        style = Paint.Style.FILL
+    }
+    private var strokePaint: Paint = Paint().apply {
+        strokeWidth = 10F
+        style = Paint.Style.STROKE
+    }
     private var switch: Boolean = true
     private var cellWidth: Float = 0F
     private var lockRadius: Float = 0F
@@ -23,26 +36,6 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     private var board: Board = Board()
     private var white = com.yonce3.ocero.Color.WHITE
     private var black = com.yonce3.ocero.Color.BLACK
-
-    init {
-        // 黒の石のペイント
-        paintBlack = Paint().apply {
-            this.color = Color.BLACK
-            this.style = Paint.Style.FILL
-        }
-
-        // 白の石のペイント
-        paintWhite = Paint().apply {
-            this.color = Color.WHITE
-            this.style = Paint.Style.FILL
-        }
-
-        // 枠線のペイント
-        strokePaint = Paint().apply {
-            this.strokeWidth = 10F
-            this.style = Paint.Style.STROKE
-        }
-    }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         // マスのオブジェクトを作成
@@ -78,16 +71,16 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         // 石を描画
         board.cellList.map {
             if (it.isPut) {
-                canvas.drawCircle(it.centerX!!, it.centerY!!, pointRadius, paintBlack)
+                canvas.drawCircle(it.centerX!!, it.centerY!!, pointRadius, stonePaintGray)
             }
 
             if (it.isSet) {
                 when (it.color) {
                     black -> {
-                        canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, paintBlack)
+                        canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, stonePaintBlack)
                     }
                     white -> {
-                        canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, paintWhite)
+                        canvas.drawCircle(it.centerX!!, it.centerY!!, lockRadius, stonePaintWhite)
                     }
                 }
             }
@@ -165,30 +158,6 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
                         cellList[rightIndex].color = com.yonce3.ocero.Color.BLACK
                     } else {
                         checkRightReverse(addedCell, rightIndex + 8)
-                    }
-                }
-            }
-        } catch (e: IndexOutOfBoundsException) {
-            return
-        }
-    }
-
-    private fun checkLeftReverse(addedCell: Cell, leftIndex: Int) {
-        try {
-            if (switch) {
-                if (cellList[leftIndex].color == com.yonce3.ocero.Color.BLACK) {
-                    if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.WHITE) {
-                        cellList[leftIndex].color = com.yonce3.ocero.Color.WHITE
-                    } else {
-                        checkRightReverse(addedCell, leftIndex - 8)
-                    }
-                }
-            } else {
-                if (cellList[leftIndex].color == com.yonce3.ocero.Color.WHITE) {
-                    if (cellList[leftIndex - 8].color == com.yonce3.ocero.Color.BLACK) {
-                        cellList[leftIndex].color = com.yonce3.ocero.Color.BLACK
-                    } else {
-                        checkRightReverse(addedCell, leftIndex - 8)
                     }
                 }
             }

@@ -95,7 +95,7 @@ class Board {
         return Board()
     }
 
-    // ロジックの記録用
+    // ロジックの記録用: プット可能エリア
     fun checkLeft(isWhite: Boolean, cell: Cell) {
         var selfIndex = (cell.x - 1) * 8 + cell.y - 1
         var leftIndex = if (cell.x == 1) cell.y else selfIndex - 8
