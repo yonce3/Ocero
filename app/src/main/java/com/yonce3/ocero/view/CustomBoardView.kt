@@ -9,6 +9,7 @@ import android.view.MotionEvent
 import android.view.View
 import com.yonce3.ocero.Board
 import com.yonce3.ocero.Cell
+import com.yonce3.ocero.MainActivity
 import java.lang.IndexOutOfBoundsException
 
 class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attrs) {
@@ -127,6 +128,16 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
             board.checkCell(it)
         }
 
+        val activity = this.context
+        if (activity is MainActivity) {
+            val playerText = if (board.player) "White" else "Black"
+            activity.mainViewModel.apply {
+                this.playerText.postValue(playerText)
+                this.whiteCount.postValue((board.cellList.filter { it.color == com.yonce3.ocero.Color.WHITE }.size).toString())
+                this.blackCount.postValue((board.cellList.filter { it.color == com.yonce3.ocero.Color.BLACK }.size).toString())
+            }
+        }
+
         invalidate()
         return super.onTouchEvent(event)
     }
@@ -185,41 +196,6 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
 
         var leftIndex = selfIndex - 8
         checkLeftPutAble(leftIndex)
-    }
-
-    private fun checkTopPutAble() {
-        cellList.filter { it.isSet }.map {
-            var selfIndex = (it.x - 1) * 8 + it.y - 1
-            var topIndex = selfIndex - 1
-            if (switch) {
-                checkPutForWhite(topIndex)
-                if (cellList[topIndex].color == com.yonce3.ocero.Color.BLACK) {
-                    if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.NONE) {
-                        cellList[topIndex].isPut = true
-                    } else {
-                        checkTopPutAble()
-                    }
-                }
-            } else {
-                if (cellList[topIndex].color == com.yonce3.ocero.Color.WHITE) {
-                    if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.NONE) {
-                        cellList[topIndex].isPut = true
-                    } else {
-                        checkTopPutAble()
-                    }
-                }
-            }
-        }
-    }
-
-    private fun checkPutForWhite(topIndex: Int) {
-        if (cellList[topIndex].color == com.yonce3.ocero.Color.BLACK) {
-            if (cellList[topIndex - 1].color == com.yonce3.ocero.Color.NONE) {
-                cellList[topIndex].isPut = true
-            } else {
-                checkTopPutAble()
-            }
-        }
     }
 
     private fun checkBottomPutAble(bottomIndex: Int) {
