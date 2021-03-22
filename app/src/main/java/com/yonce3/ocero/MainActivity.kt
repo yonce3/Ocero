@@ -2,12 +2,8 @@ package com.yonce3.ocero
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import com.yonce3.ocero.databinding.ActivityMainBinding
-import com.yonce3.ocero.view.CustomBoardView
-import java.nio.BufferUnderflowException
 
 class MainActivity : AppCompatActivity() {
 
