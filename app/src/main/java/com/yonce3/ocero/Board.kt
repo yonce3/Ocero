@@ -44,13 +44,13 @@ class Board {
     private fun checkIndexCountList(cell: Cell): List<Int> =
         when {
             cell.x == 1 && cell.y == 1 -> listOf(1, 8, 9)
-            cell.x == 1 && cell.y == 7 -> listOf(-1, 7, 8)
+            cell.x == 1 && cell.y == 8 -> listOf(-1, 7, 8)
             cell.x == 1 -> listOf(-1, 7, 8, 9, 1)
-            cell.x == 7 && cell.y == 1 -> listOf(1, -8, -9)
-            cell.x == 7 && cell.y == 7 -> listOf(-1, -8, -9)
-            cell.x == 7 -> listOf(1, -7, -8)
+            cell.x == 8 && cell.y == 1 -> listOf(1, -8, -9)
+            cell.x == 8 && cell.y == 8 -> listOf(-1, -8, -9)
+            cell.x == 8 -> listOf(-1, 1, -7, -8, -9)
             cell.y == 1 -> listOf(7, 8, 1, -7, -8)
-            cell.y == 7 -> listOf(-1, 7, 8, -8, -7)
+            cell.y == 8 -> listOf(-1, 7, 8, -8, -7)
             else -> indexCountList
         }
 
@@ -60,14 +60,16 @@ class Board {
             var nextIndex = selfIndex + indexCount
             var flag = true
             var color = if (player) Color.BLACK else Color.WHITE
+            val CHECKINDEX = nextIndex + indexCount in 0..63
 
-            while (flag) {
-                println("あああああ" + nextIndex + indexCount)
-                if (cellList[nextIndex].color == color
+            println("あああ" + nextIndex + indexCount)
+
+            while (flag && nextIndex < 64 && 0 < nextIndex && nextIndex + indexCount < 64) {
+                if (cellList[nextIndex].color == color && CHECKINDEX
                         && cellList[nextIndex + indexCount].color == Color.NONE) {
                     cellList[nextIndex + indexCount].isPut = true
                     flag = false
-                } else if (cellList[nextIndex].color == color) {
+                } else if (cellList[nextIndex].color == color && cellList[nextIndex].x != 8) {
                     nextIndex += indexCount
                 } else {
                     flag = false
@@ -85,7 +87,9 @@ class Board {
             var reverseColor = if (player) Color.WHITE else Color.BLACK
             var reversibleList = arrayListOf<Cell>()
 
-            while (flag) {
+            println("あああ" + selfIndex + indexCount)
+
+            while (flag && nextIndex < 64 && 0 < nextIndex && nextIndex + indexCount < 64) {
                 if (cellList[nextIndex].color == color
                         && cellList[nextIndex + indexCount].color == reverseColor) {
                     reversibleList.add(cellList[nextIndex])
