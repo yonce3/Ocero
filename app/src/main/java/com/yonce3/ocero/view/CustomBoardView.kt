@@ -103,7 +103,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
                     board.checkReverse(this)
                     board.player = false
                 } else {
-                    color = com.yonce3.ocero.Color.BLACK
+                    color = black
                     board.checkReverse(this)
                     board.player = true
                 }
@@ -146,6 +146,17 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         whiteList.map {cell ->
             board.checkCell(cell)
         }
+
+        val activity = this.context
+        if (activity is MainActivity) {
+            val playerText = if (board.player) "White" else "Black"
+            activity.mainViewModel.apply {
+                this.playerText.postValue(playerText)
+                this.whiteCount.postValue((board.cellList.filter { it.color == com.yonce3.ocero.Color.WHITE }.size).toString())
+                this.blackCount.postValue((board.cellList.filter { it.color == com.yonce3.ocero.Color.BLACK }.size).toString())
+            }
+        }
+
         invalidate()
     }
 }

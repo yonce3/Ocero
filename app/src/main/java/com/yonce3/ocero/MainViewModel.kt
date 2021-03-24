@@ -5,6 +5,6 @@ import androidx.lifecycle.ViewModel
 
 class MainViewModel: ViewModel() {
     val playerText = MutableLiveData<String>("White")
-    val whiteCount = MutableLiveData("0")
-    val blackCount = MutableLiveData("0")
+    val whiteCount = MutableLiveData("2")
+    val blackCount = MutableLiveData("2")
 }

@@ -15,7 +15,7 @@ class Board {
 
         for(x in 1..8) {
             for (y in 1..8) {
-                val cell = Cell(x, y, w1, h1, w2, h2, (w1 + w2)/2, (h1 + h2)/2, false)
+                val cell = Cell(x, y, w1, h1, w2, h2, (w1 + w2) / 2, (h1 + h2) / 2, false)
                 cellList.add(cell)
                 h1 += cellWidth
                 h2 += cellWidth
@@ -46,7 +46,7 @@ class Board {
             cell.x == 1 && cell.y == 1 -> listOf(1, 8, 9)
             cell.x == 1 && cell.y == 8 -> listOf(-1, 7, 8)
             cell.x == 1 -> listOf(-1, 7, 8, 9, 1)
-            cell.x == 8 && cell.y == 1 -> listOf(1, -8, -9)
+            cell.x == 8 && cell.y == 1 -> listOf(1, -7, -8)
             cell.x == 8 && cell.y == 8 -> listOf(-1, -8, -9)
             cell.x == 8 -> listOf(-1, 1, -7, -8, -9)
             cell.y == 1 -> listOf(7, 8, 1, -7, -8)
@@ -60,16 +60,14 @@ class Board {
             var nextIndex = selfIndex + indexCount
             var flag = true
             var color = if (player) Color.BLACK else Color.WHITE
-            val CHECKINDEX = nextIndex + indexCount in 0..63
+            val CHECK_INDEX = nextIndex + indexCount in 0..63
 
-            println("あああ" + nextIndex + indexCount)
-
-            while (flag && nextIndex < 64 && 0 < nextIndex && nextIndex + indexCount < 64) {
-                if (cellList[nextIndex].color == color && CHECKINDEX
+            while (flag && nextIndex < 64 && 0 < nextIndex && nextIndex + indexCount in 0..63) {
+                if (cellList[nextIndex].color == color && CHECK_INDEX
                         && cellList[nextIndex + indexCount].color == Color.NONE) {
                     cellList[nextIndex + indexCount].isPut = true
                     flag = false
-                } else if (cellList[nextIndex].color == color && cellList[nextIndex].x != 8) {
+                } else if (cellList[nextIndex].color == color) {
                     nextIndex += indexCount
                 } else {
                     flag = false
