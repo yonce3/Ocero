@@ -87,7 +87,7 @@ class Board {
 
             println("あああ" + selfIndex + indexCount)
 
-            while (flag && nextIndex < 64 && 0 < nextIndex && nextIndex + indexCount < 64) {
+            while (flag && nextIndex < 64 && 0 < nextIndex && nextIndex + indexCount in 0..63) {
                 if (cellList[nextIndex].color == color
                         && cellList[nextIndex + indexCount].color == reverseColor) {
                     reversibleList.add(cellList[nextIndex])
