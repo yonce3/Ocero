@@ -3,8 +3,6 @@ package com.yonce3.ocero
 class Board {
     var cellList = arrayListOf<Cell>()
     var player = true
-    var blackCount = 0
-    var whiteCount = 0
     var indexCountList = listOf(-1, 7, 8, 9, 1, -7, -8, -9)
 
     fun init(cellWidth: Float) {
@@ -35,12 +33,6 @@ class Board {
         }
     }
 
-    // それぞれの石の数をカウント
-    fun count() {
-        whiteCount = cellList.filter { it.color == Color.WHITE }.size
-        blackCount = cellList.filter { it.color == Color.BLACK }.size
-    }
-
     private fun checkIndexCountList(cell: Cell): List<Int> =
         when {
             cell.x == 1 && cell.y == 1 -> listOf(1, 8, 9)
@@ -60,11 +52,22 @@ class Board {
             var nextIndex = selfIndex + indexCount
             var flag = true
             var color = if (player) Color.BLACK else Color.WHITE
-            val CHECK_INDEX = nextIndex + indexCount in 0..63
 
-            while (flag && nextIndex < 64 && 0 < nextIndex && nextIndex + indexCount in 0..63) {
-                if (cellList[nextIndex].color == color && CHECK_INDEX
-                        && cellList[nextIndex + indexCount].color == Color.NONE) {
+            // TODO: 端に到達したら、ループを抜けるようにする
+            while (flag && nextIndex in 1..64 && nextIndex + indexCount in 1..64) {
+                if (cell.x == 8 && cellList[nextIndex].x == 1
+                        || cell.x == 1 && cellList[nextIndex].x == 8
+                        || cell.y == 8 && cellList[nextIndex].y == 1
+                        || cell.y == 1 && cellList[nextIndex].y == 8) {
+                    flag = false
+                } else if (cellList[nextIndex].x == 8 && cellList[nextIndex + indexCount].x == 1
+                        || cellList[nextIndex].x == 1 && cellList[nextIndex + indexCount].x == 8
+                        || cellList[nextIndex].y == 8 && cellList[nextIndex + indexCount].y == 1
+                        || cellList[nextIndex].y == 1 && cellList[nextIndex + indexCount].y == 8) {
+                    flag = false
+                }
+
+                if (cellList[nextIndex].color == color && cellList[nextIndex + indexCount].color == Color.NONE) {
                     cellList[nextIndex + indexCount].isPut = true
                     flag = false
                 } else if (cellList[nextIndex].color == color) {
@@ -85,9 +88,7 @@ class Board {
             var reverseColor = if (player) Color.WHITE else Color.BLACK
             var reversibleList = arrayListOf<Cell>()
 
-            println("あああ" + selfIndex + indexCount)
-
-            while (flag && nextIndex < 64 && 0 < nextIndex && nextIndex + indexCount in 0..63) {
+            while (flag && nextIndex in 1..64 && (nextIndex + indexCount) in 0..64) {
                 if (cellList[nextIndex].color == color
                         && cellList[nextIndex + indexCount].color == reverseColor) {
                     reversibleList.add(cellList[nextIndex])
