@@ -31,6 +31,11 @@ class Board {
         cellList.filter { it.x == 4 && it.y == 5 || it.x == 5 && it.y == 4 }.map {
             it.set(Color.BLACK)
         }
+
+        val whiteList = cellList.filter { it.color == Color.WHITE }
+        whiteList.map {cell ->
+            checkCell(cell)
+        }
     }
 
     private fun checkIndexCountList(cell: Cell): List<Int> =
@@ -46,7 +51,7 @@ class Board {
             else -> indexCountList
         }
 
-    fun checkCell(cell: Cell) {
+    private fun checkCell(cell: Cell) {
         checkIndexCountList(cell).map { indexCount ->
             var selfIndex = (cell.x - 1) * 8 + cell.y - 1
             var nextIndex = selfIndex + indexCount
@@ -79,7 +84,7 @@ class Board {
         }
     }
 
-    fun checkReverse(addCell: Cell) {
+    private fun checkReverse(addCell: Cell) {
         checkIndexCountList(addCell).map { indexCount ->
             var selfIndex = (addCell.x - 1) * 8 + addCell.y - 1
             var nextIndex = selfIndex + indexCount
@@ -106,8 +111,40 @@ class Board {
         }
     }
 
-    fun reset(): Board {
+    fun resetGame(cellWidth: Float): Board {
+        init(cellWidth)
+
+        val whiteList = cellList.filter { it.color == Color.WHITE }
+        whiteList.map {cell ->
+            checkCell(cell)
+        }
         return Board()
+    }
+
+    fun tapNewCell(addCell: Cell) {
+        addCell.apply {
+            isSet = true
+
+            if (player) {
+                color = Color.WHITE
+                checkReverse(this)
+                player = false
+            } else {
+                color = Color.BLACK
+                checkReverse(this)
+                player = true
+            }
+        }
+
+        // リセット
+        cellList.map {
+            it.isPut = false
+        }
+
+        var checkList = if (player) cellList.filter { it.color == Color.WHITE } else cellList.filter { it.color == Color.BLACK }
+        checkList.map {
+            checkCell(it)
+        }
     }
 
     // ロジックの記録用: プット可能エリア

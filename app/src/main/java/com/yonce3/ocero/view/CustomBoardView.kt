@@ -45,11 +45,6 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
         pointRadius = lockRadius / 2
 
         board.init(cellWidth)
-
-        val whiteList = board.cellList.filter { it.color == white }
-        whiteList.map {cell ->
-            board.checkCell(cell)
-        }
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
@@ -96,32 +91,11 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
                 && it.isPut}
 
         if (tappedCellList.isNotEmpty()) {
-            tappedCellList.first().apply {
-                isSet = true
-                if (board.player) {
-                    color = white
-                    board.checkReverse(this)
-                    board.player = false
-                } else {
-                    color = black
-                    board.checkReverse(this)
-                    board.player = true
-                }
-
-                board.cellList
+            tappedCellList.first().let {
+                board.tapNewCell(it)
             }
         } else {
             return false
-        }
-
-        // リセット
-        board.cellList.map {
-            it.isPut = false
-        }
-
-        var checkList = if (board.player) board.cellList.filter { it.color == white } else board.cellList.filter { it.color == black }
-        checkList.map {
-            board.checkCell(it)
         }
 
         val activity = this.context
@@ -139,14 +113,10 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     }
 
     fun clearView() {
-        board = board.reset()
-        board.init(cellWidth)
+        // board.reset()のみを実行したい
+        board.resetGame(cellWidth)
 
-        val whiteList = board.cellList.filter { it.color == white }
-        whiteList.map {cell ->
-            board.checkCell(cell)
-        }
-
+        // TODO: ViewModel()に移行して、ViewModelから実行？
         val activity = this.context
         if (activity is MainActivity) {
             val playerText = if (board.player) "White" else "Black"
@@ -156,7 +126,6 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
                 this.blackCount.postValue((board.cellList.filter { it.color == com.yonce3.ocero.Color.BLACK }.size).toString())
             }
         }
-
         invalidate()
     }
 }
