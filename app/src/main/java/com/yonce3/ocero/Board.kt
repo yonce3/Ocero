@@ -10,11 +10,20 @@ class Board {
         var h1 = 0F
         var w2 = cellWidth
         var h2 = cellWidth
+        var whiteList = arrayListOf<Cell>()
 
         for(x in 1..8) {
             for (y in 1..8) {
                 val cell = Cell(x, y, w1, h1, w2, h2, (w1 + w2) / 2, (h1 + h2) / 2, false)
                 cellList.add(cell)
+
+                // 初期石を作成
+                if (x == 4 && y == 4 || x == 5 && y == 5) {
+                    cell.set(Color.WHITE)
+                    whiteList.add(cell)
+                } else if (x == 4 && y == 5 || x == 5 && y == 4) {
+                    cell.set(Color.BLACK)
+                }
                 h1 += cellWidth
                 h2 += cellWidth
             }
@@ -24,15 +33,6 @@ class Board {
             w2 += cellWidth
         }
 
-        // 初期石を作成
-        cellList.filter { it.x == 4 && it.y == 4 || it.x == 5 && it.y == 5}.map {
-            it.set(Color.WHITE)
-        }
-        cellList.filter { it.x == 4 && it.y == 5 || it.x == 5 && it.y == 4 }.map {
-            it.set(Color.BLACK)
-        }
-
-        val whiteList = cellList.filter { it.color == Color.WHITE }
         whiteList.map {cell ->
             checkCell(cell)
         }
