@@ -51,13 +51,11 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        var h = 0F
-        var w = 0F
+        var length = 0F
         for (i in 0..8) {
-            canvas.drawLine(0F, h, width.toFloat(), h, strokePaint)
-            h += width / 8
-            canvas.drawLine(w, 0F, w, width.toFloat(), strokePaint)
-            w += width / 8
+            canvas.drawLine(0F, length, width.toFloat(), length, strokePaint)
+            canvas.drawLine(length, 0F, length, width.toFloat(), strokePaint)
+            length += width / 8
         }
 
         // 石を描画
