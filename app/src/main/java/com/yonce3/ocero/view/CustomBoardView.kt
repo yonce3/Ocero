@@ -112,7 +112,7 @@ class CustomBoardView(context: Context, attrs: AttributeSet): View(context, attr
 
     fun clearView() {
         // board.reset()のみを実行したい
-        board.resetGame(cellWidth)
+        board.init(cellWidth)
 
         // TODO: ViewModel()に移行して、ViewModelから実行？
         val activity = this.context

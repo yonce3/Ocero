@@ -1,11 +1,13 @@
 package com.yonce3.ocero
 
 class Board {
-    var cellList = arrayListOf<Cell>()
+    lateinit var cellList: ArrayList<Cell>
     var player = true
     var indexCountList = listOf(-1, 7, 8, 9, 1, -7, -8, -9)
 
     fun init(cellWidth: Float) {
+        cellList = arrayListOf()
+        player = true
         var w1 = 0F
         var h1 = 0F
         var w2 = cellWidth
@@ -58,18 +60,15 @@ class Board {
             var flag = true
             var color = if (player) Color.BLACK else Color.WHITE
 
-            // TODO: 端に到達したら、ループを抜けるようにする
-            while (flag && nextIndex in 1..64 && nextIndex + indexCount in 1..64) {
-                if (cell.x == 8 && cellList[nextIndex].x == 1
-                        || cell.x == 1 && cellList[nextIndex].x == 8
-                        || cell.y == 8 && cellList[nextIndex].y == 1
-                        || cell.y == 1 && cellList[nextIndex].y == 8) {
-                    flag = false
-                } else if (cellList[nextIndex].x == 8 && cellList[nextIndex + indexCount].x == 1
-                        || cellList[nextIndex].x == 1 && cellList[nextIndex + indexCount].x == 8
-                        || cellList[nextIndex].y == 8 && cellList[nextIndex + indexCount].y == 1
-                        || cellList[nextIndex].y == 1 && cellList[nextIndex + indexCount].y == 8) {
-                    flag = false
+            while (flag && nextIndex in 0..63 && nextIndex + indexCount in 0..63) {
+                if (cell.x != 1 && cell.x != 8 && cell.y != 1 && cell.y != 8 ) { // 始点が端でない
+                    if (cellList[nextIndex].x == 1 || cellList[nextIndex].x == 8
+                            || cellList[nextIndex].y == 1 || cellList[nextIndex].y == 8) { // 次の石が端の場合は、break
+                        break
+                    } else if (cellList[nextIndex + indexCount].x == 1 || cellList[nextIndex + indexCount].x == 8
+                            || cellList[nextIndex + indexCount].y == 1 || cellList[nextIndex + indexCount].y == 8) { // 隣以降を確認
+                        break
+                    }
                 }
 
                 if (cellList[nextIndex].color == color && cellList[nextIndex + indexCount].color == Color.NONE) {
@@ -93,7 +92,17 @@ class Board {
             var reverseColor = if (player) Color.WHITE else Color.BLACK
             var reversibleList = arrayListOf<Cell>()
 
-            while (flag && nextIndex in 1..64 && (nextIndex + indexCount) in 0..64) {
+            while (flag && nextIndex in 0..63 && (nextIndex + indexCount) in 0..63) {
+                if (addCell.x != 1 && addCell.x != 8 && addCell.y != 1 && addCell.y != 8 ) { // 始点が端でない
+                    if (cellList[nextIndex].x == 1 || cellList[nextIndex].x == 8
+                            || cellList[nextIndex].y == 1 || cellList[nextIndex].y == 8) { // 次の石が端の場合は、break
+                        break
+                    } else if (cellList[nextIndex + indexCount].x == 1 || cellList[nextIndex + indexCount].x == 8
+                            || cellList[nextIndex + indexCount].y == 1 || cellList[nextIndex + indexCount].y == 8) { // 隣以降を確認
+                        break
+                    }
+                }
+
                 if (cellList[nextIndex].color == color
                         && cellList[nextIndex + indexCount].color == reverseColor) {
                     reversibleList.add(cellList[nextIndex])
@@ -109,16 +118,6 @@ class Board {
                 }
             }
         }
-    }
-
-    fun resetGame(cellWidth: Float): Board {
-        init(cellWidth)
-
-        val whiteList = cellList.filter { it.color == Color.WHITE }
-        whiteList.map {cell ->
-            checkCell(cell)
-        }
-        return Board()
     }
 
     fun tapNewCell(addCell: Cell) {
