@@ -62,12 +62,12 @@ class Board {
 
             while (flag && nextIndex in 0..63 && nextIndex + indexCount in 0..63) {
                 if (cell.x != 1 && cell.x != 8 && cell.y != 1 && cell.y != 8 ) { // 始点が端でない
-                    if (cellList[nextIndex].x == 1 || cellList[nextIndex].x == 8
-                            || cellList[nextIndex].y == 1 || cellList[nextIndex].y == 8) { // 次の石が端の場合は、break
-                        break
-                    } else if (cellList[nextIndex + indexCount].x == 1 || cellList[nextIndex + indexCount].x == 8
-                            || cellList[nextIndex + indexCount].y == 1 || cellList[nextIndex + indexCount].y == 8) { // 隣以降を確認
-                        break
+                    val nextCell = cellList[nextIndex]
+                    val thirdCell = cellList[nextIndex + indexCount]
+                    if (nextCell.x == 1 || nextCell.x == 8 || nextCell.y == 1 || nextCell.y == 8) {
+                        if (thirdCell.x == 1 || thirdCell.x == 8 || thirdCell.y == 1 || thirdCell.y == 8) {
+                            break
+                        }
                     }
                 }
 
@@ -79,6 +79,13 @@ class Board {
                 } else {
                     flag = false
                 }
+            }
+        }
+
+        // 置く場所がない場合に、次のプレイヤーに変わる
+        if (cellList.none { it.isPut }) {
+            if (cellList.none { !it.isSet }) {
+                player = !player
             }
         }
     }
@@ -93,14 +100,13 @@ class Board {
             var reversibleList = arrayListOf<Cell>()
 
             while (flag && nextIndex in 0..63 && (nextIndex + indexCount) in 0..63) {
-                var cell = cellList[nextIndex + indexCount]
                 if (addCell.x != 1 && addCell.x != 8 && addCell.y != 1 && addCell.y != 8 ) { // 始点が端でない
-                    if (cellList[nextIndex].x == 1 || cellList[nextIndex].x == 8
-                            || cellList[nextIndex].y == 1 || cellList[nextIndex].y == 8) { // 次の石が端の場合は、break
-                        break
-                    } else if (cell.x == 1 && cellList[nextIndex].x == 8 || cell.x == 8 && cellList[nextIndex].x == 1
-                            || cell.y == 1 && cellList[nextIndex].y == 8 || cell.y == 8 && cellList[nextIndex].y == 1) { // 隣以降を確認
-                        break
+                    val nextCell = cellList[nextIndex]
+                    val thirdCell = cellList[nextIndex + indexCount]
+                    if (nextCell.x == 1 || nextCell.x == 8 || nextCell.y == 1 || nextCell.y == 8) {
+                        if (thirdCell.x == 1 || thirdCell.x == 8 || thirdCell.y == 1 || thirdCell.y == 8) {
+                            break
+                        }
                     }
                 }
 
